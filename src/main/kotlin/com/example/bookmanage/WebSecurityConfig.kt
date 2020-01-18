@@ -20,8 +20,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 @Configuration
 @EnableWebSecurity
 class WebSecurityConfig : WebSecurityConfigurerAdapter() {
-    //    @Autowired
+//    @Autowired
 //    private DataSource dataSource;
+
     @Throws(Exception::class)
     override fun configure(web: WebSecurity) {
         web.ignoring().antMatchers("/css/**", "/js/**", "img/**")

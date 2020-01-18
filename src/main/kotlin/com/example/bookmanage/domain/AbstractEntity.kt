@@ -1,7 +1,5 @@
 package com.example.bookmanage.domain
 
-import lombok.Getter
-import lombok.Setter
 import org.springframework.security.core.context.SecurityContextHolder
 import java.time.LocalDateTime
 import javax.persistence.*

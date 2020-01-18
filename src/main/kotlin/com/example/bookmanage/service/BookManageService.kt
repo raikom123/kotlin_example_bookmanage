@@ -5,7 +5,6 @@ import com.example.bookmanage.exception.BookNotFoundException
 import com.example.bookmanage.form.BookManageForm
 import com.example.bookmanage.repository.BookRepository
 import org.modelmapper.ModelMapper
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,7 +26,8 @@ class BookManageService(
      * @return フォーム情報
      */
     @Transactional(readOnly = true)
-    fun initForm(): BookManageForm { // 一覧を取得する
+    fun initForm(): BookManageForm {
+        // 一覧を取得する
         val books = bookRepository.findAll()
         return BookManageForm(true, books)
     }
@@ -41,7 +41,8 @@ class BookManageService(
      */
     @Transactional(readOnly = true)
     @Throws(BookNotFoundException::class)
-    fun readOneBook(id: Long): BookManageForm { // IDでエンティティを取得する
+    fun readOneBook(id: Long): BookManageForm {
+        // IDでエンティティを取得する
         val book = bookRepository.findById(id)
             .orElseThrow { BookNotFoundException(id) }
         // 一覧を取得する
@@ -60,10 +61,12 @@ class BookManageService(
      * @param form フォーム情報
      * @return 更新後の書籍
      * @throws BookNotFoundException 書籍が取得できない場合に発生する
+     * @throws ObjectOptimisticLockingFailureException バージョンが一致しない場合に発生する
      */
     @Transactional(readOnly = false)
     @Throws(BookNotFoundException::class, ObjectOptimisticLockingFailureException::class)
-    fun updateBook(id: Long, form: BookManageForm): Book { // IDでエンティティを取得する
+    fun updateBook(id: Long, form: BookManageForm): Book {
+        // IDでエンティティを取得する
         val book = bookRepository.findById(id)
             .orElseThrow { BookNotFoundException(id) }
         // 楽観排他
@@ -84,7 +87,8 @@ class BookManageService(
      * @return 新規作成した書籍
      */
     @Transactional(readOnly = false)
-    fun createBook(form: BookManageForm?): Book { // フォーム情報を使って、エンティティを生成する
+    fun createBook(form: BookManageForm?): Book {
+        // フォーム情報を使って、エンティティを生成する
         val modelMapper = ModelMapper()
         val book = modelMapper.map(form, Book::class.java)
         // エンティティを登録する

@@ -14,7 +14,7 @@ import java.util.*
  * 書籍管理システムのConfiguration
  *
  * 以下を実装している。
- * PUT/DELETEをPOSTするためにHiddenHttpMehotdFilterをFilterとして設定する。
+ * PUT/DELETEをPOSTするためにHiddenHttpMethodFilterをFilterとして設定する。
  * validationで使用するメッセージプロパティのエンコードをUTF-8に設定する。
  */
 @Configuration

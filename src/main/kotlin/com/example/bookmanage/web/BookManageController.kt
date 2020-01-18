@@ -4,9 +4,7 @@ import com.example.bookmanage.exception.BookManageValidationException
 import com.example.bookmanage.exception.BookNotFoundException
 import com.example.bookmanage.form.BookManageForm
 import com.example.bookmanage.service.BookManageService
-import lombok.extern.slf4j.Slf4j
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
 import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.security.core.Authentication
@@ -67,9 +65,10 @@ class BookManageController(
     fun root(): ModelAndView {
         return ModelAndView(REDIRECT_TO_BOOKS)
     }
+
     // ------------------------------------------------------------------------
-// ログイン処理
-// ------------------------------------------------------------------------
+    // ログイン処理
+    // ------------------------------------------------------------------------
     /**
      * ログイン画面にアクセスする。
      *
@@ -92,9 +91,10 @@ class BookManageController(
         modelAndView.addObject("loginFailure", true)
         return modelAndView
     }
+
     // ------------------------------------------------------------------------
-// ログアウト処理
-// ------------------------------------------------------------------------
+    // ログアウト処理
+    // ------------------------------------------------------------------------
     /**
      * ログアウトが成功した時の処理。
      *
@@ -116,9 +116,9 @@ class BookManageController(
      * @return モデルビュー
      */
     @GetMapping(value = ["/books"])
-    fun readBooks(principal: Principal): ModelAndView { // 認証情報を取得
-        val authentication =
-            principal as Authentication
+    fun readBooks(principal: Principal): ModelAndView {
+        // 認証情報を取得
+        val authentication = principal as Authentication
         val userName = authentication.name
         val form = service.initForm()
         val modelAndView = toBookPages()
@@ -169,7 +169,10 @@ class BookManageController(
      */
     @PostMapping(value = ["/books"])
     @Throws(Throwable::class)
-    fun createOneBook(@Validated @ModelAttribute form: BookManageForm, result: BindingResult, locale: Locale): ModelAndView {
+    fun createOneBook(
+        @Validated @ModelAttribute form: BookManageForm, result: BindingResult,
+        locale: Locale
+    ): ModelAndView {
         try {
             validateInputFormData(form, result)
             service.createBook(form)
@@ -224,9 +227,10 @@ class BookManageController(
         }
         return ModelAndView(REDIRECT_TO_BOOKS)
     }
+
     // ------------------------------------------------------------------------
-// 管理者用処理
-// ------------------------------------------------------------------------
+    // 管理者用処理
+    // ------------------------------------------------------------------------
     /**
      * 管理者用画面へのアクセスした時の処理。
      *
@@ -239,9 +243,10 @@ class BookManageController(
         modelAndView.viewName = "admin"
         return modelAndView
     }
+
     // ------------------------------------------------------------------------
-// エラー処理
-// ------------------------------------------------------------------------
+    // エラー処理
+    // ------------------------------------------------------------------------
     /**
      * セッションが無効になった時の処理。
      *
@@ -297,15 +302,18 @@ class BookManageController(
      */
     @Throws(Throwable::class)
     private fun handleException(form: BookManageForm, t: Throwable, locale: Locale): ModelAndView {
-        if (t is BookNotFoundException) { // 書籍が取得出来ない場合
+        if (t is BookNotFoundException) {
+            // 書籍が取得出来ない場合
             val message = messageSource.getMessage("error.booknotfound", null, locale)
             BookManageController.log.warn(message, t)
             return toBookPageForError(form, message)
-        } else if (t is ObjectOptimisticLockingFailureException) { // 楽観排他でエラーが発生した場合
+        } else if (t is ObjectOptimisticLockingFailureException) {
+            // 楽観排他でエラーが発生した場合
             val message = messageSource.getMessage("error.optlockfailure", null, locale)
             BookManageController.log.warn(message, t)
             return toBookPageForError(form, message)
-        } else if (t is BookManageValidationException) { // 入力内容のエラーが発生した場合
+        } else if (t is BookManageValidationException) {
+            // 入力内容のエラーが発生した場合
             val message = messageSource.getMessage("error.validation", null, locale)
             BookManageController.log.warn(message, t)
             return toBookPageForError(form, message)
@@ -321,7 +329,8 @@ class BookManageController(
      * @param errorMessage エラーメッセージ
      * @return モデルビュー
      */
-    private fun toBookPageForError(form: BookManageForm, errorMessage: String): ModelAndView { // 書籍一覧を取得し直す
+    private fun toBookPageForError(form: BookManageForm, errorMessage: String): ModelAndView {
+        // 書籍一覧を取得し直す
         val initForm = service.initForm()
         form.books = initForm.books
         val modelAndView = toBookPages()

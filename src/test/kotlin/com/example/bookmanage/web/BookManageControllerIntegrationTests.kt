@@ -67,9 +67,9 @@ internal class BookManageControllerIntegrationTests {
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("books")) // ビュー名が"books"か否か
             .andReturn()
-        // モデルからformを取得する
+
+        // モデルからformを取得し、変数を評価する
         val form = result.modelAndView!!.model["bookManageForm"] as BookManageForm
-        // 変数を評価する
         assertNull(form.title)
         assertNull(form.author)
         assertEquals(form.newBook, true)
@@ -88,18 +88,14 @@ internal class BookManageControllerIntegrationTests {
         inputForm.version = 0
 
         // postリクエストでbooksを指定する
-        val params: MultiValueMap<String, String> =
-            LinkedMultiValueMap()
+        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
         params.add("title", inputForm.title)
         params.add("author", inputForm.author)
         params.add("newBook", inputForm.newBook.toString())
         params.add("version", inputForm.version.toString())
-        // csrfを設定しないとセッションが無効になる
-        mockMvc.perform(
-            post("/books").with(csrf()).params(
-                params
-            )
-        )
+
+        //MEMO csrfを設定しないとセッションが無効になる
+        mockMvc.perform(post("/books").with(csrf()).params(params))
             .andDo(print())
             .andExpect(status().is3xxRedirection) // HTTPステータスが3xxか否か(リダイレクト)
             .andExpect(redirectedUrl("/books")) // /booksにリダイレクトするか否か
@@ -123,9 +119,9 @@ internal class BookManageControllerIntegrationTests {
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("admin")) // ビュー名が"admin"か否か
             .andReturn()
-        // モデルからformを取得する
+
+        // モデルからformを取得し、変数を評価する
         val form = result.modelAndView!!.model["bookManageForm"] as BookManageForm
-        // 変数を評価する
         assertNull(form.title)
         assertNull(form.author)
         assertEquals(form.newBook, true)
@@ -135,7 +131,9 @@ internal class BookManageControllerIntegrationTests {
 
     @Test
     @WithMockUser(username = "user", password = "user", authorities = ["ROLE_USER"])
-    fun `管理者権限がないユーザでadminにアクセスしようとした場合の確認`() { // getリクエストでadminにアクセス
+    fun `管理者権限がないユーザでadminにアクセスしようとした場合の確認`() {
+        // getリクエストでadminにアクセス
+        //MEMO csrfを設定しないとセッションが無効になる
         mockMvc.perform(get("/admin").with(csrf()))
             .andDo(print())
             .andExpect(status().isForbidden) // クライアントエラー(403)

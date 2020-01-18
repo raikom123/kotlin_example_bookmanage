@@ -32,9 +32,11 @@ internal class BookRepositoryTests {
 
         // 書籍を新規登録
         newBook = repository.saveAndFlush(book)
+
         // エンティティに設定した変数を検証
         assertEquals(newBook!!.title, TEST_TITLE_NEW)
         assertEquals(newBook!!.author, TEST_AUTHOR_NEW)
+
         // 自動設定される変数を検証
         assertNotEquals(newBook!!.id, DEFAULT_LONG_VALUE)
         assertEquals(newBook!!.version, FIRST_VERSION)
@@ -56,9 +58,11 @@ internal class BookRepositoryTests {
         book.title = TEST_TITLE_UPD
         book.author = TEST_AUTHOR_UPD
         val updBook =  repository.saveAndFlush(book)
+
         // エンティティに設定した変数を検証
         assertEquals(updBook.title, TEST_TITLE_UPD)
         assertEquals(updBook.author, TEST_AUTHOR_UPD)
+
         // 自動設定される変数を検証
         assertEquals(updBook.id, newBook!!.id)
         assertNotEquals(updBook.version, newBook!!.version)

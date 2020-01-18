@@ -44,8 +44,8 @@ internal class BookManageFormTests {
     private val result: BindingResult = BindException(form, "bookManageForm")
 
     @BeforeEach
-    @Throws(Exception::class)
-    fun setUp() { // 正常な値を設定する
+    fun setUp() {
+        // 正常な値を設定する
         form.title = TITLE_SUCCESS
         form.author = AUTHOR_SUCCESS
 
@@ -68,9 +68,11 @@ internal class BookManageFormTests {
             null,
             LocaleContextHolder.getLocale()
         )
+
         // 不正な値を設定し、チェックを行う
         form.title = TITLE_ERROR_NOT_EMPTY
         validator.validate(form, result)
+
         // エラーが発生したフィールドとメッセージを確認する
         Assertions.assertEquals(result.fieldError!!.field, "title")
         Assertions.assertEquals(result.fieldError!!.defaultMessage, actualMessage)
@@ -79,11 +81,16 @@ internal class BookManageFormTests {
     @Test
     fun `タイトルの文字数が最大を超えている場合_エラーが発生することの確認`() {
         // 想定されるメッセージをリソースから取得する
-        val actualMessage =
-            messageSource!!.getMessage("validation.max-size", null, LocaleContextHolder.getLocale())
+        val actualMessage = messageSource.getMessage(
+            "validation.max-size",
+            null,
+            LocaleContextHolder.getLocale()
+        )
+
         // 不正な値を設定し、チェックを行う
         form.title = TITLE_ERROR_MAX_SIZE
         validator.validate(form, result)
+
         // エラーが発生したフィールドとメッセージを確認する
         Assertions.assertEquals(result.fieldError!!.field, "title")
         Assertions.assertEquals(result.fieldError!!.defaultMessage, actualMessage)
@@ -92,26 +99,34 @@ internal class BookManageFormTests {
     @Test
     fun `著者が空の場合_エラーが発生することの確認`() {
         // 想定されるメッセージをリソースから取得する
-        val actualMessage = messageSource!!.getMessage(
+        val actualMessage = messageSource.getMessage(
             "javax.validation.constraints.NotBlank.message",
             null,
             LocaleContextHolder.getLocale()
         )
+
         // 不正な値を設定し、チェックを行う
         form.author = AUTHOR_ERROR_NOT_EMPTY
         validator.validate(form, result)
+
         // エラーが発生したフィールドとメッセージを確認する
         Assertions.assertEquals(result.fieldError!!.field, "author")
         Assertions.assertEquals(result.fieldError!!.defaultMessage, actualMessage)
     }
 
     @Test
-    fun `著者の文字数が最大を超えている場合_エラーが発生することの確認`() { // 想定されるメッセージをリソースから取得する
-        val actualMessage =
-            messageSource!!.getMessage("validation.max-size", null, LocaleContextHolder.getLocale())
+    fun `著者の文字数が最大を超えている場合_エラーが発生することの確認`() {
+        // 想定されるメッセージをリソースから取得する
+        val actualMessage = messageSource.getMessage(
+            "validation.max-size",
+            null,
+            LocaleContextHolder.getLocale()
+        )
+
         // 不正な値を設定し、チェックを行う
         form.author = AUTHOR_ERROR_MAX_SIZE
         validator.validate(form, result)
+
         // エラーが発生したフィールドとメッセージを確認する
         Assertions.assertEquals(result.fieldError!!.field, "author")
         Assertions.assertEquals(result.fieldError!!.defaultMessage, actualMessage)

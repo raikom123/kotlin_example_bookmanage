@@ -95,20 +95,18 @@ class BookManageControllerUnitTests {
         initForm.books = listOf()
         Mockito.`when`(service.initForm()).thenReturn(initForm)
         // 認証情報のモック
-        val mockPrincipal =
-            Mockito.mock(
-                Authentication::class.java
-            )
+        val mockPrincipal = Mockito.mock(Authentication::class.java)
         Mockito.`when`(mockPrincipal.name).thenReturn("user")
+
         // getリクエストでbooksを指定する
         val result = mockMvc.perform(get("/books").principal(mockPrincipal))
             .andDo(print())
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("books")) // ビュー名が"books"か否か
             .andReturn()
-        // モデルからformを取得する
+
+        // モデルからformを取得し、変数を評価する
         val form = result.modelAndView!!.model["bookManageForm"] as BookManageForm
-        // 変数を評価する
         assertNull(form.title)
         assertNull(form.author)
         assertEquals(form.newBook, true)
@@ -129,20 +127,18 @@ class BookManageControllerUnitTests {
         initForm.books = listOf(testBook)
         Mockito.`when`(service.initForm()).thenReturn(initForm)
         // 認証情報のモック
-        val mockPrincipal =
-            Mockito.mock(
-                Authentication::class.java
-            )
+        val mockPrincipal = Mockito.mock(Authentication::class.java)
         Mockito.`when`(mockPrincipal.name).thenReturn("user")
+
         // getリクエストでbooksを指定する
         val result = mockMvc.perform(get("/books").principal(mockPrincipal))
             .andDo(print())
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("books")) // ビュー名が"books"か否か
             .andReturn()
-        // モデルからformを取得する
+
+        // モデルからformを取得し、変数を評価する
         val form = result.modelAndView!!.model["bookManageForm"] as BookManageForm
-        // 変数を評価する
         assertNull(form.title)
         assertNull(form.author)
         assertEquals(form.newBook, true)
@@ -163,18 +159,18 @@ class BookManageControllerUnitTests {
         readOneForm.newBook = false
         readOneForm.version = TEST_VERSION
         readOneForm.books = listOf(testBook)
+        Mockito.`when`(service.readOneBook(TEST_ID)).thenReturn(readOneForm)
 
-        Mockito.`when`(service.readOneBook(TEST_ID))
-            .thenReturn(readOneForm)
         // getリクエストでbooks/{id}を指定する
         val result =
-            mockMvc.perform(get("/books/1")).andDo(print())
+            mockMvc.perform(get("/books/1"))
+                .andDo(print())
                 .andExpect(status().isOk) // HTTPステータスが200か否か
                 .andExpect(view().name("books")) // ビュー名が"books"か否か
                 .andReturn()
-        // モデルからformを取得する
+
+        // モデルからformを取得し、変数を評価する
         val form = result.modelAndView!!.model["bookManageForm"] as BookManageForm
-        // 変数を評価する
         assertEquals(form.title, TEST_TITLE)
         assertEquals(form.author, TEST_AUTHOR)
         assertEquals(form.newBook, false)
@@ -193,12 +189,10 @@ class BookManageControllerUnitTests {
     @Test
     fun `readOneBook_データが存在しないidを指定した時のステータスとビューとモデルの確認`() {
         // モックを登録
-        Mockito.`when`(service.readOneBook(INVALID_TEST_ID))
-            .thenThrow(BookNotFoundException(INVALID_TEST_ID))
+        Mockito.`when`(service.readOneBook(INVALID_TEST_ID)).thenThrow(BookNotFoundException(INVALID_TEST_ID))
         val initForm = BookManageForm()
         initForm.newBook = true
         initForm.books = listOf(testBook)
-
         Mockito.`when`(service.initForm()).thenReturn(initForm)
         Mockito.`when`(
             mockMessageSource.getMessage(
@@ -207,24 +201,27 @@ class BookManageControllerUnitTests {
                 ArgumentMatchers.any()
             )
         ).thenReturn(TEST_MESSAGE)
+
         // getリクエストでbooks/{id}を指定する
-        val result =
-            mockMvc.perform(get("/books/2")).andDo(print())
+        val result = mockMvc.perform(get("/books/2"))
+                .andDo(print())
                 .andExpect(status().isOk) // HTTPステータスが200か否か
                 .andExpect(view().name("books")) // ビュー名が"books"か否か
                 .andReturn()
-        // モデルからformを取得する
+
+        // モデルからformを取得し、変数を評価する
         val form = result.modelAndView!!.model["bookManageForm"] as BookManageForm
-        // 変数を評価する
         assertNull(form.title)
         assertNull(form.author)
         assertEquals(form.newBook, true)
         assertEquals(form.version, 0)
         assertNotNull(form.books)
         assertEquals(form.books!!.size, 1)
+
         // モデルにメッセージが設定されているかを評価する
         val message = result.modelAndView!!.model["errorMessage"] as String?
         assertEquals(message, TEST_MESSAGE)
+
         // メッセージソースの引数を確認する
         Mockito.verify(mockMessageSource).getMessage(
             messageCode.capture(),
@@ -245,9 +242,9 @@ class BookManageControllerUnitTests {
 
         // モックを登録
         Mockito.`when`(service.createBook(inputForm)).thenReturn(testBook)
+
         // postリクエストでbooksを指定する
-        val params: MultiValueMap<String, String> =
-            LinkedMultiValueMap()
+        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
         params.add("title", inputForm.title)
         params.add("author", inputForm.author)
         params.add("newBook", inputForm.newBook.toString())
@@ -272,14 +269,16 @@ class BookManageControllerUnitTests {
 
         // モックを登録
         Mockito.`when`(service.initForm()).thenReturn(initForm)
-        Mockito.`when`(mockMessageSource.getMessage(
-            com.nhaarman.mockitokotlin2.any(),
-            ArgumentMatchers.any<Array<Any>>(),
-            com.nhaarman.mockitokotlin2.any()))
-            .thenReturn(TEST_MESSAGE)
+        Mockito.`when`(
+            mockMessageSource.getMessage(
+                com.nhaarman.mockitokotlin2.any(),
+                ArgumentMatchers.any<Array<Any>>(),
+                com.nhaarman.mockitokotlin2.any()
+            )
+        ).thenReturn(TEST_MESSAGE)
+
         // postリクエストでbooksを指定する
-        val params: MultiValueMap<String, String> =
-            LinkedMultiValueMap()
+        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
         params.add("title", inputForm.title)
         params.add("author", inputForm.author)
         params.add("newBook", inputForm.newBook.toString())
@@ -289,18 +288,20 @@ class BookManageControllerUnitTests {
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("books")) // ビュー名が"books"か否か
             .andReturn()
-        // モデルからformを取得する
+
+        // モデルからformを取得し、変数を評価する
         val form = result.modelAndView!!.model["bookManageForm"] as BookManageForm
-        // 変数を評価する
         assertNull(form.title)
         assertNull(form.author)
         assertEquals(form.newBook, true)
         assertEquals(form.version, 0)
         assertNotNull(form.books)
         assertEquals(form.books!!.size, 0)
+
         // モデルにメッセージが設定されているかを評価する
         val message = result.modelAndView!!.model["errorMessage"] as String
         assertEquals(message, TEST_MESSAGE)
+
         // メッセージソースの引数を確認する
         Mockito.verify(mockMessageSource).getMessage(
             messageCode.capture(),
@@ -308,6 +309,8 @@ class BookManageControllerUnitTests {
             ArgumentMatchers.any()
         )
         assertEquals(messageCode.value, "error.validation")
+
+        // エラーの件数を確認する
         //MEMO bindingResultの詳細な確認は、BookManageFormTestsで行う
         val bindingResult =
             result.modelAndView!!.model["org.springframework.validation.BindingResult.bookManageForm"] as BindingResult
@@ -324,15 +327,10 @@ class BookManageControllerUnitTests {
         inputForm.version = 0
 
         // モックを登録
-        Mockito.`when`(
-            service.updateBook(
-                TEST_ID,
-                inputForm
-            )
-        ).thenReturn(testBook)
+        Mockito.`when`(service.updateBook(TEST_ID, inputForm)).thenReturn(testBook)
+
         // putリクエストでbooks/{id}を指定する
-        val params: MultiValueMap<String, String> =
-            LinkedMultiValueMap()
+        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
         params.add("title", inputForm.title)
         params.add("author", inputForm.author)
         params.add("newBook", inputForm.newBook.toString())
@@ -364,14 +362,16 @@ class BookManageControllerUnitTests {
             )
         ).thenThrow(BookNotFoundException(INVALID_TEST_ID))
         Mockito.`when`(service.initForm()).thenReturn(initForm)
-        Mockito.`when`(mockMessageSource.getMessage(
-            ArgumentMatchers.any(),
-            ArgumentMatchers.any<Array<Any>>(),
-            ArgumentMatchers.any()))
-            .thenReturn(TEST_MESSAGE)
+        Mockito.`when`(
+            mockMessageSource.getMessage(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any<Array<Any>>(),
+                ArgumentMatchers.any()
+            )
+        ).thenReturn(TEST_MESSAGE)
+
         // putリクエストでbooks/{id}を指定する
-        val params: MultiValueMap<String, String> =
-            LinkedMultiValueMap()
+        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
         params.add("title", inputForm.title)
         params.add("author", inputForm.author)
         params.add("newBook", inputForm.newBook.toString())
@@ -381,18 +381,20 @@ class BookManageControllerUnitTests {
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("books")) // ビュー名が"books"か否か
             .andReturn()
-        // モデルからformを取得する
+
+        // モデルからformを取得し、変数を評価する
         val form = result.modelAndView!!.model["bookManageForm"] as BookManageForm
-        // 変数を評価する
         assertEquals(form.title, inputForm.title)
         assertEquals(form.author, inputForm.author)
         assertEquals(form.newBook, inputForm.newBook)
         assertEquals(form.version, inputForm.version)
         assertNotNull(form.books)
         assertEquals(form.books!!.size, 1)
+
         // モデルにメッセージが設定されているかを評価する
         val message = result.modelAndView!!.model["errorMessage"] as String
         assertEquals(message, TEST_MESSAGE)
+
         // メッセージソースの引数を確認する
         Mockito.verify(mockMessageSource).getMessage(
             messageCode.capture(),
@@ -434,9 +436,9 @@ class BookManageControllerUnitTests {
                 ArgumentMatchers.any()
             )
         ).thenReturn(TEST_MESSAGE)
+
         // putリクエストでbooks/{id}を指定する
-        val params: MultiValueMap<String, String> =
-            LinkedMultiValueMap()
+        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
         params.add("title", inputForm.title)
         params.add("author", inputForm.author)
         params.add("newBook", inputForm.newBook.toString())
@@ -446,18 +448,20 @@ class BookManageControllerUnitTests {
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("books")) // ビュー名が"books"か否か
             .andReturn()
-        // モデルからformを取得する
+
+        // モデルからformを取得し、変数を評価する
         val form = result.modelAndView!!.model["bookManageForm"] as BookManageForm
-        // 変数を評価する
         assertEquals(form.title, inputForm.title)
         assertEquals(form.author, inputForm.author)
         assertEquals(form.newBook, inputForm.newBook)
         assertEquals(form.version, inputForm.version)
         assertNotNull(form.books)
         assertEquals(form.books!!.size, 1)
+
         // モデルにメッセージが設定されているかを評価する
         val message = result.modelAndView!!.model["errorMessage"] as String
         assertEquals(message, TEST_MESSAGE)
+
         // メッセージソースの引数を確認する
         Mockito.verify(mockMessageSource).getMessage(
             messageCode.capture(),
@@ -489,9 +493,9 @@ class BookManageControllerUnitTests {
                 ArgumentMatchers.any()
             )
         ).thenReturn(TEST_MESSAGE)
+
         // putリクエストでbooks/{id}を指定する
-        val params: MultiValueMap<String, String> =
-            LinkedMultiValueMap()
+        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
         params.add("title", inputForm.title)
         params.add("author", inputForm.author)
         params.add("newBook", inputForm.newBook.toString())
@@ -501,18 +505,20 @@ class BookManageControllerUnitTests {
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("books")) // ビュー名が"books"か否か
             .andReturn()
-        // モデルからformを取得する
+
+        // モデルからformを取得し、変数を評価する
         val form = result.modelAndView!!.model["bookManageForm"] as BookManageForm
-        // 変数を評価する
         assertEquals(form.title, inputForm.title)
         assertEquals(form.author, inputForm.author)
         assertEquals(form.newBook, inputForm.newBook)
         assertEquals(form.version, inputForm.version)
         assertNotNull(form.books)
         assertEquals(form.books!!.size, 1)
+
         // モデルにメッセージが設定されているかを評価する
         val message = result.modelAndView!!.model["errorMessage"] as String
         assertEquals(message, TEST_MESSAGE)
+
         // メッセージソースの引数を確認する
         Mockito.verify(mockMessageSource).getMessage(
             messageCode.capture(),
@@ -520,6 +526,8 @@ class BookManageControllerUnitTests {
             ArgumentMatchers.any()
         )
         assertEquals(messageCode.value, "error.validation")
+
+        // エラーの件数を確認する
         //MEMO bindingResultの詳細な確認は、BookManageFormTestsで行う
         val bindingResult =
             result.modelAndView!!.model["org.springframework.validation.BindingResult.bookManageForm"] as BindingResult
@@ -529,8 +537,8 @@ class BookManageControllerUnitTests {
     @Test
     fun `deleteOneBook_正常に削除した場合のステータスとリダイレクトURLの確認`() {
         // モックを登録
-        Mockito.doNothing().`when`(service)
-            .deleteBook(TEST_ID)
+        Mockito.doNothing().`when`(service).deleteBook(TEST_ID)
+
         // deleteリクエストでbooksを指定する
         mockMvc.perform(delete("/books/1"))
             .andDo(print())
@@ -546,31 +554,35 @@ class BookManageControllerUnitTests {
         val initForm = BookManageForm()
         initForm.newBook = true
         initForm.books = listOf(testBook)
-
         Mockito.`when`(service.initForm()).thenReturn(initForm)
-        Mockito.`when`(mockMessageSource.getMessage(
-            ArgumentMatchers.any(),
-            ArgumentMatchers.any<Array<Any>>(),
-            ArgumentMatchers.any()))
-            .thenReturn(TEST_MESSAGE)
+        Mockito.`when`(
+            mockMessageSource.getMessage(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any<Array<Any>>(),
+                ArgumentMatchers.any()
+            )
+        ).thenReturn(TEST_MESSAGE)
+
         // deleteリクエストでbooks/{id}を指定する
-        val result =
-            mockMvc.perform(delete("/books/2")).andDo(print())
+        val result = mockMvc.perform(delete("/books/2"))
+                .andDo(print())
                 .andExpect(status().isOk) // HTTPステータスが200か否か
                 .andExpect(view().name("books")) // ビュー名が"books"か否か
                 .andReturn()
-        // モデルからformを取得する
+
+        // モデルからformを取得し、変数を評価する
         val form = result.modelAndView!!.model["bookManageForm"] as BookManageForm
-        // 変数を評価する
         assertNull(form.title)
         assertNull(form.author)
         assertEquals(form.newBook, true)
         assertEquals(form.version, 0)
         assertNotNull(form.books)
         assertEquals(form.books!!.size, 1)
+
         // モデルにメッセージが設定されているかを評価する
         val message = result.modelAndView!!.model["errorMessage"] as String
         assertEquals(message, TEST_MESSAGE)
+
         // メッセージソースの引数を確認する
         Mockito.verify(mockMessageSource).getMessage(
             messageCode.capture(),
@@ -592,8 +604,7 @@ class BookManageControllerUnitTests {
     @Test
     fun `idに文字を指定した場合のステータスとビュー名の確認`() {
         // putリクエストでbooks/{id}を指定する
-        val params: MultiValueMap<String, String> =
-            LinkedMultiValueMap()
+        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
         params.add("title", TEST_TITLE)
         params.add("author", TEST_AUTHOR)
         params.add("newBook", false.toString())
@@ -649,7 +660,6 @@ class BookManageControllerUnitTests {
         val initForm = BookManageForm()
         initForm.newBook = true
         initForm.books = listOf(testBook)
-
         Mockito.`when`(service.initForm()).thenReturn(initForm)
         // 認証情報のモック
         val mockPrincipal =
@@ -657,15 +667,16 @@ class BookManageControllerUnitTests {
                 Authentication::class.java
             )
         Mockito.`when`(mockPrincipal.name).thenReturn("user")
+
         // getリクエストでbooksを指定する
         val result = mockMvc.perform(get("/admin").principal(mockPrincipal))
             .andDo(print())
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("admin")) // ビュー名が"books"か否か
             .andReturn()
-        // モデルからformを取得する
+
+        // モデルからformを取得し、変数を評価する
         val form = result.modelAndView!!.model["bookManageForm"] as BookManageForm
-        // 変数を評価する
         assertNull(form.title)
         assertNull(form.author)
         assertEquals(form.newBook, true)

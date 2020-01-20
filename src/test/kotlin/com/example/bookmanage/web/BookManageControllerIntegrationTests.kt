@@ -2,6 +2,7 @@ package com.example.bookmanage.web
 
 import com.example.bookmanage.BookmanageApplication
 import com.example.bookmanage.form.BookManageForm
+import com.example.bookmanage.web.BookManageControllerUnitTests.Companion.toMultiValueMap
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -17,8 +18,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders.*
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 import org.springframework.web.context.WebApplicationContext
 
 @SpringBootTest(classes = [BookmanageApplication::class])
@@ -80,22 +79,14 @@ internal class BookManageControllerIntegrationTests {
     @Test
     @WithMockUser(username = "user", password = "user", authorities = ["ROLE_USER"])
     fun `認証ありでpostリクエストでbooksにアクセスする場合のステータスとリダイレクトURLの確認`() {
-        // テストデータ作成
-        val inputForm = BookManageForm()
-        inputForm.title = TEST_TITLE
-        inputForm.author = TEST_AUTHOR
-        inputForm.newBook = true
-        inputForm.version = 0
-
         // postリクエストでbooksを指定する
-        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
-        params.add("title", inputForm.title)
-        params.add("author", inputForm.author)
-        params.add("newBook", inputForm.newBook.toString())
-        params.add("version", inputForm.version.toString())
-
         //MEMO csrfを設定しないとセッションが無効になる
-        mockMvc.perform(post("/books").with(csrf()).params(params))
+        mockMvc.perform(post("/books").with(csrf()).params(toMultiValueMap(BookManageForm().apply {
+                title = TEST_TITLE
+                author = TEST_AUTHOR
+                newBook = true
+                version = 0
+            })))
             .andDo(print())
             .andExpect(status().is3xxRedirection) // HTTPステータスが3xxか否か(リダイレクト)
             .andExpect(redirectedUrl("/books")) // /booksにリダイレクトするか否か

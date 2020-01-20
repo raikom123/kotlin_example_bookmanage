@@ -88,10 +88,10 @@ class BookManageControllerUnitTests {
     @Test
     fun `readBooks_データが登録されていない時のステータスとビューとモデルの確認`() {
         // モックを登録
-        val initForm = BookManageForm()
-        initForm.newBook = true
-        initForm.books = listOf()
-        whenever(service.initForm()).thenReturn(initForm)
+        whenever(service.initForm()).thenReturn(BookManageForm().apply {
+            newBook = true
+            books = listOf()
+        })
         // 認証情報のモック
         val mockPrincipal: Authentication = mock {
             on { name }.thenReturn("user")
@@ -121,10 +121,10 @@ class BookManageControllerUnitTests {
     @Test
     fun `readBooks_データが1件登録されている時のステータスとビューとモデルの確認`() {
         // モックを登録
-        val initForm = BookManageForm()
-        initForm.newBook = true
-        initForm.books = listOf(testBook)
-        whenever(service.initForm()).thenReturn(initForm)
+        whenever(service.initForm()).thenReturn(BookManageForm().apply {
+            newBook = true
+            books = listOf(testBook)
+        })
         // 認証情報のモック
         val mockPrincipal: Authentication = mock {
             on { name }.thenReturn("user")
@@ -153,13 +153,13 @@ class BookManageControllerUnitTests {
     @Test
     fun `readOneBook_データが存在するidを指定した時のステータスとビューとモデルの確認`() {
         // モックを登録
-        val readOneForm = BookManageForm()
-        readOneForm.title = TEST_TITLE
-        readOneForm.author = TEST_AUTHOR
-        readOneForm.newBook = false
-        readOneForm.version = TEST_VERSION
-        readOneForm.books = listOf(testBook)
-        whenever(service.readOneBook(TEST_ID)).thenReturn(readOneForm)
+        whenever(service.readOneBook(TEST_ID)).thenReturn(BookManageForm().apply {
+            title = TEST_TITLE
+            author = TEST_AUTHOR
+            newBook = false
+            version = TEST_VERSION
+            books = listOf(testBook)
+        })
 
         // getリクエストでbooks/{id}を指定する
         val result = mockMvc.perform(get("/books/1"))
@@ -189,10 +189,10 @@ class BookManageControllerUnitTests {
     fun `readOneBook_データが存在しないidを指定した時のステータスとビューとモデルの確認`() {
         // モックを登録
         whenever(service.readOneBook(INVALID_TEST_ID)).thenThrow(BookNotFoundException(INVALID_TEST_ID))
-        val initForm = BookManageForm()
-        initForm.newBook = true
-        initForm.books = listOf(testBook)
-        whenever(service.initForm()).thenReturn(initForm)
+        whenever(service.initForm()).thenReturn(BookManageForm().apply {
+            newBook = true
+            books = listOf(testBook)
+        })
         whenever(
             mockMessageSource.getMessage(
                 ArgumentMatchers.any(),
@@ -245,12 +245,7 @@ class BookManageControllerUnitTests {
         whenever(service.createBook(inputForm)).thenReturn(testBook)
 
         // postリクエストでbooksを指定する
-        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
-        params.add("title", inputForm.title)
-        params.add("author", inputForm.author)
-        params.add("newBook", inputForm.newBook.toString())
-        params.add("version", inputForm.version.toString())
-        mockMvc.perform(post("/books").params(params))
+        mockMvc.perform(post("/books").params(toMultiValueMap(inputForm)))
             .andDo(print())
             .andExpect(status().is3xxRedirection) // HTTPステータスが3xxか否か(リダイレクト)
             .andExpect(redirectedUrl("/books")) // /booksにリダイレクトするか否か
@@ -258,18 +253,12 @@ class BookManageControllerUnitTests {
 
     @Test
     fun `createOneBook_入力エラーが発生した場合のステータスとビューとモデルの確認`() {
-        // テストデータ作成
-        val inputForm = BookManageForm()
-        inputForm.newBook = true
-        inputForm.version = 0
-
-        val initForm = BookManageForm()
-        initForm.newBook = true
-        initForm.version = 0
-        initForm.books = listOf()
-
         // モックを登録
-        whenever(service.initForm()).thenReturn(initForm)
+        whenever(service.initForm()).thenReturn(BookManageForm().apply {
+            newBook = true
+            version = 0
+            books = listOf()
+        })
         whenever(
             mockMessageSource.getMessage(
                 any(),
@@ -279,12 +268,10 @@ class BookManageControllerUnitTests {
         ).thenReturn(TEST_MESSAGE)
 
         // postリクエストでbooksを指定する
-        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
-        params.add("title", inputForm.title)
-        params.add("author", inputForm.author)
-        params.add("newBook", inputForm.newBook.toString())
-        params.add("version", inputForm.version.toString())
-        val result = mockMvc.perform(post("/books").params(params))
+        val result = mockMvc.perform(post("/books").params(toMultiValueMap(BookManageForm().apply {
+                newBook = true
+                version = 0
+            })))
             .andDo(print())
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("books")) // ビュー名が"books"か否か
@@ -333,12 +320,7 @@ class BookManageControllerUnitTests {
         whenever(service.updateBook(TEST_ID, inputForm)).thenReturn(testBook)
 
         // putリクエストでbooks/{id}を指定する
-        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
-        params.add("title", inputForm.title)
-        params.add("author", inputForm.author)
-        params.add("newBook", inputForm.newBook.toString())
-        params.add("version", inputForm.version.toString())
-        mockMvc.perform(put("/books/1").params(params))
+        mockMvc.perform(put("/books/1").params(toMultiValueMap(inputForm)))
             .andDo(print())
             .andExpect(status().is3xxRedirection) // HTTPステータスが3xxか否か(リダイレクト)
             .andExpect(redirectedUrl("/books")) // /booksにリダイレクトするか否か
@@ -353,10 +335,6 @@ class BookManageControllerUnitTests {
         inputForm.newBook = false
         inputForm.version = TEST_VERSION
 
-        val initForm = BookManageForm()
-        initForm.newBook = true
-        initForm.books = listOf(testBook)
-
         // モックを登録
         whenever(
             service.updateBook(
@@ -364,7 +342,10 @@ class BookManageControllerUnitTests {
                 any()
             )
         ).thenThrow(BookNotFoundException(INVALID_TEST_ID))
-        whenever(service.initForm()).thenReturn(initForm)
+        whenever(service.initForm()).thenReturn(BookManageForm().apply {
+            newBook = true
+            books = listOf(testBook)
+        })
         whenever(
             mockMessageSource.getMessage(
                 ArgumentMatchers.any(),
@@ -374,12 +355,7 @@ class BookManageControllerUnitTests {
         ).thenReturn(TEST_MESSAGE)
 
         // putリクエストでbooks/{id}を指定する
-        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
-        params.add("title", inputForm.title)
-        params.add("author", inputForm.author)
-        params.add("newBook", inputForm.newBook.toString())
-        params.add("version", inputForm.version.toString())
-        val result = mockMvc.perform(put("/books/2").params(params))
+        val result = mockMvc.perform(put("/books/2").params(toMultiValueMap(inputForm)))
             .andDo(print())
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("books")) // ビュー名が"books"か否か
@@ -418,10 +394,6 @@ class BookManageControllerUnitTests {
         inputForm.newBook = false
         inputForm.version = TEST_VERSION
 
-        val initForm = BookManageForm()
-        initForm.newBook = true
-        initForm.books = listOf(testBook)
-
         // モックを登録
         whenever(
             service.updateBook(
@@ -430,10 +402,14 @@ class BookManageControllerUnitTests {
             )
         ).thenThrow(
             ObjectOptimisticLockingFailureException(
-                Book::class.java, INVALID_TEST_ID
+                Book::class.java,
+                INVALID_TEST_ID
             )
         )
-        whenever(service.initForm()).thenReturn(initForm)
+        whenever(service.initForm()).thenReturn(BookManageForm().apply {
+            newBook = true
+            books = listOf(testBook)
+        })
         whenever(
             mockMessageSource.getMessage(
                 ArgumentMatchers.any(),
@@ -443,12 +419,7 @@ class BookManageControllerUnitTests {
         ).thenReturn(TEST_MESSAGE)
 
         // putリクエストでbooks/{id}を指定する
-        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
-        params.add("title", inputForm.title)
-        params.add("author", inputForm.author)
-        params.add("newBook", inputForm.newBook.toString())
-        params.add("version", inputForm.version.toString())
-        val result = mockMvc.perform(put("/books/2").params(params))
+        val result = mockMvc.perform(put("/books/2").params(toMultiValueMap(inputForm)))
             .andDo(print())
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("books")) // ビュー名が"books"か否か
@@ -487,12 +458,11 @@ class BookManageControllerUnitTests {
         inputForm.newBook = false
         inputForm.version = TEST_VERSION
 
-        val initForm = BookManageForm()
-        initForm.newBook = true
-        initForm.books = listOf(testBook)
-
         // モックを登録
-        whenever(service.initForm()).thenReturn(initForm)
+        whenever(service.initForm()).thenReturn(BookManageForm().apply {
+            newBook = true
+            books = listOf(testBook)
+        })
         whenever(
             mockMessageSource.getMessage(
                 ArgumentMatchers.any(),
@@ -502,12 +472,7 @@ class BookManageControllerUnitTests {
         ).thenReturn(TEST_MESSAGE)
 
         // putリクエストでbooks/{id}を指定する
-        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
-        params.add("title", inputForm.title)
-        params.add("author", inputForm.author)
-        params.add("newBook", inputForm.newBook.toString())
-        params.add("version", inputForm.version.toString())
-        val result = mockMvc.perform(put("/books/1").params(params))
+        val result = mockMvc.perform(put("/books/1").params(toMultiValueMap(inputForm)))
             .andDo(print())
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("books")) // ビュー名が"books"か否か
@@ -559,10 +524,10 @@ class BookManageControllerUnitTests {
     fun `deleteOneBook_指定したIDのデータが存在しない場合のステータスとビューとモデルの確認`() {
         // モックを登録
         doThrow(BookNotFoundException(INVALID_TEST_ID)).whenever(service).deleteBook(INVALID_TEST_ID)
-        val initForm = BookManageForm()
-        initForm.newBook = true
-        initForm.books = listOf(testBook)
-        whenever(service.initForm()).thenReturn(initForm)
+        whenever(service.initForm()).thenReturn(BookManageForm().apply {
+            newBook = true
+            books = listOf(testBook)
+        })
         whenever(
             mockMessageSource.getMessage(
                 ArgumentMatchers.any(),
@@ -614,12 +579,12 @@ class BookManageControllerUnitTests {
     @Test
     fun `idに文字を指定した場合のステータスとビュー名の確認`() {
         // putリクエストでbooks/{id}を指定する
-        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
-        params.add("title", TEST_TITLE)
-        params.add("author", TEST_AUTHOR)
-        params.add("newBook", false.toString())
-        params.add("version", 0.toString())
-        mockMvc.perform(put("/books/a").params(params))
+        mockMvc.perform(put("/books/a").params(toMultiValueMap(BookManageForm().apply {
+                title = TEST_TITLE
+                author = TEST_AUTHOR
+                newBook = false
+                version = 0
+            })))
             .andDo(print())
             .andExpect(status().isOk) // HTTPステータスが200か否か
             .andExpect(view().name("error")) // ビュー名がerrorか否か
@@ -667,10 +632,10 @@ class BookManageControllerUnitTests {
     @Test
     fun `admin_管理者機能にアクセスした場合のステータスとビュー名とモデルの確認`() {
         // モックを登録
-        val initForm = BookManageForm()
-        initForm.newBook = true
-        initForm.books = listOf(testBook)
-        whenever(service.initForm()).thenReturn(initForm)
+        whenever(service.initForm()).thenReturn(BookManageForm().apply {
+            newBook = true
+            books = listOf(testBook)
+        })
         // 認証情報のモック
         val mockPrincipal: Authentication = mock {
             on { name }.thenReturn("user")
@@ -726,5 +691,20 @@ class BookManageControllerUnitTests {
          * テスト用のメッセージ
          */
         private const val TEST_MESSAGE = "test message"
+
+        /**
+         * フォーム情報をpostする際のパラメータのMultiValueMapに変換する。
+         *
+         * @param form フォーム情報
+         * @return MultiValueMapに変換した結果
+         */
+        fun toMultiValueMap(form: BookManageForm): MultiValueMap<String, String> {
+            return LinkedMultiValueMap(mapOf(
+                "title" to listOf(form.title),
+                "author" to listOf(form.author),
+                "newBook" to listOf(form.newBook.toString()),
+                "version" to listOf(form.version.toString())
+            ))
+        }
     }
 }

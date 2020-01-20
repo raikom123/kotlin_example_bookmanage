@@ -1,9 +1,7 @@
 package com.example.bookmanage.repository
 
 import com.example.bookmanage.domain.Book
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,10 +38,10 @@ internal class BookRepositoryTests {
         // 自動設定される変数を検証
         assertNotEquals(newBook!!.id, DEFAULT_LONG_VALUE)
         assertEquals(newBook!!.version, FIRST_VERSION)
-        Assertions.assertNotNull(newBook!!.createdDateTime)
-        Assertions.assertNotNull(newBook!!.updatedDateTime)
-        Assertions.assertNotNull(newBook!!.createdUser)
-        Assertions.assertNotNull(newBook!!.updatedUser)
+        assertNotNull(newBook!!.createdDateTime)
+        assertNotNull(newBook!!.updatedDateTime)
+        assertNotNull(newBook!!.createdUser)
+        assertNotNull(newBook!!.updatedUser)
     }
 
     @Test

@@ -5,10 +5,14 @@ import com.example.bookmanage.domain.Book
 import com.example.bookmanage.exception.BookNotFoundException
 import com.example.bookmanage.form.BookManageForm
 import com.example.bookmanage.service.BookManageService
+import com.nhaarman.mockitokotlin2.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.*
+import org.mockito.Mockito.doNothing
+import org.mockito.Mockito.doThrow
+import org.mockito.Mockito.verify
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.MessageSource
 import org.springframework.orm.ObjectOptimisticLockingFailureException
@@ -53,12 +57,6 @@ class BookManageControllerUnitTests {
     private lateinit var mockMessageSource: MessageSource
 
     /**
-     * メッセージソースのコードを確認するためのCaptor
-     */
-    @Captor
-    private lateinit var messageCode: ArgumentCaptor<String>
-
-    /**
      * Httpリクエスト・レスポンスを扱うためのMockオブジェクト
      */
     private lateinit var mockMvc: MockMvc
@@ -93,10 +91,11 @@ class BookManageControllerUnitTests {
         val initForm = BookManageForm()
         initForm.newBook = true
         initForm.books = listOf()
-        Mockito.`when`(service.initForm()).thenReturn(initForm)
+        whenever(service.initForm()).thenReturn(initForm)
         // 認証情報のモック
-        val mockPrincipal = Mockito.mock(Authentication::class.java)
-        Mockito.`when`(mockPrincipal.name).thenReturn("user")
+        val mockPrincipal: Authentication = mock {
+            on { name }.thenReturn("user")
+        }
 
         // getリクエストでbooksを指定する
         val result = mockMvc.perform(get("/books").principal(mockPrincipal))
@@ -125,10 +124,11 @@ class BookManageControllerUnitTests {
         val initForm = BookManageForm()
         initForm.newBook = true
         initForm.books = listOf(testBook)
-        Mockito.`when`(service.initForm()).thenReturn(initForm)
+        whenever(service.initForm()).thenReturn(initForm)
         // 認証情報のモック
-        val mockPrincipal = Mockito.mock(Authentication::class.java)
-        Mockito.`when`(mockPrincipal.name).thenReturn("user")
+        val mockPrincipal: Authentication = mock {
+            on { name }.thenReturn("user")
+        }
 
         // getリクエストでbooksを指定する
         val result = mockMvc.perform(get("/books").principal(mockPrincipal))
@@ -159,11 +159,10 @@ class BookManageControllerUnitTests {
         readOneForm.newBook = false
         readOneForm.version = TEST_VERSION
         readOneForm.books = listOf(testBook)
-        Mockito.`when`(service.readOneBook(TEST_ID)).thenReturn(readOneForm)
+        whenever(service.readOneBook(TEST_ID)).thenReturn(readOneForm)
 
         // getリクエストでbooks/{id}を指定する
-        val result =
-            mockMvc.perform(get("/books/1"))
+        val result = mockMvc.perform(get("/books/1"))
                 .andDo(print())
                 .andExpect(status().isOk) // HTTPステータスが200か否か
                 .andExpect(view().name("books")) // ビュー名が"books"か否か
@@ -189,12 +188,12 @@ class BookManageControllerUnitTests {
     @Test
     fun `readOneBook_データが存在しないidを指定した時のステータスとビューとモデルの確認`() {
         // モックを登録
-        Mockito.`when`(service.readOneBook(INVALID_TEST_ID)).thenThrow(BookNotFoundException(INVALID_TEST_ID))
+        whenever(service.readOneBook(INVALID_TEST_ID)).thenThrow(BookNotFoundException(INVALID_TEST_ID))
         val initForm = BookManageForm()
         initForm.newBook = true
         initForm.books = listOf(testBook)
-        Mockito.`when`(service.initForm()).thenReturn(initForm)
-        Mockito.`when`(
+        whenever(service.initForm()).thenReturn(initForm)
+        whenever(
             mockMessageSource.getMessage(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any<Array<Any>>(),
@@ -223,12 +222,14 @@ class BookManageControllerUnitTests {
         assertEquals(message, TEST_MESSAGE)
 
         // メッセージソースの引数を確認する
-        Mockito.verify(mockMessageSource).getMessage(
-            messageCode.capture(),
-            ArgumentMatchers.any<Array<Any>>(),
-            ArgumentMatchers.any()
-        )
-        assertEquals(messageCode.value, "error.booknotfound")
+        argumentCaptor<String> {
+            verify(mockMessageSource).getMessage(
+                capture(),
+                ArgumentMatchers.any<Array<Any>>(),
+                ArgumentMatchers.any()
+            )
+            assertEquals(firstValue, "error.booknotfound")
+        }
     }
 
     @Test
@@ -241,7 +242,7 @@ class BookManageControllerUnitTests {
         inputForm.version = 0
 
         // モックを登録
-        Mockito.`when`(service.createBook(inputForm)).thenReturn(testBook)
+        whenever(service.createBook(inputForm)).thenReturn(testBook)
 
         // postリクエストでbooksを指定する
         val params: MultiValueMap<String, String> = LinkedMultiValueMap()
@@ -268,12 +269,12 @@ class BookManageControllerUnitTests {
         initForm.books = listOf()
 
         // モックを登録
-        Mockito.`when`(service.initForm()).thenReturn(initForm)
-        Mockito.`when`(
+        whenever(service.initForm()).thenReturn(initForm)
+        whenever(
             mockMessageSource.getMessage(
-                com.nhaarman.mockitokotlin2.any(),
+                any(),
                 ArgumentMatchers.any<Array<Any>>(),
-                com.nhaarman.mockitokotlin2.any()
+                any()
             )
         ).thenReturn(TEST_MESSAGE)
 
@@ -303,12 +304,14 @@ class BookManageControllerUnitTests {
         assertEquals(message, TEST_MESSAGE)
 
         // メッセージソースの引数を確認する
-        Mockito.verify(mockMessageSource).getMessage(
-            messageCode.capture(),
-            ArgumentMatchers.any<Array<Any>>(),
-            ArgumentMatchers.any()
-        )
-        assertEquals(messageCode.value, "error.validation")
+        argumentCaptor<String> {
+            verify(mockMessageSource).getMessage(
+                capture(),
+                ArgumentMatchers.any<Array<Any>>(),
+                ArgumentMatchers.any()
+            )
+            assertEquals(firstValue, "error.validation")
+        }
 
         // エラーの件数を確認する
         //MEMO bindingResultの詳細な確認は、BookManageFormTestsで行う
@@ -327,7 +330,7 @@ class BookManageControllerUnitTests {
         inputForm.version = 0
 
         // モックを登録
-        Mockito.`when`(service.updateBook(TEST_ID, inputForm)).thenReturn(testBook)
+        whenever(service.updateBook(TEST_ID, inputForm)).thenReturn(testBook)
 
         // putリクエストでbooks/{id}を指定する
         val params: MultiValueMap<String, String> = LinkedMultiValueMap()
@@ -355,14 +358,14 @@ class BookManageControllerUnitTests {
         initForm.books = listOf(testBook)
 
         // モックを登録
-        Mockito.`when`(
+        whenever(
             service.updateBook(
                 ArgumentMatchers.eq(INVALID_TEST_ID),
-                com.nhaarman.mockitokotlin2.any()
+                any()
             )
         ).thenThrow(BookNotFoundException(INVALID_TEST_ID))
-        Mockito.`when`(service.initForm()).thenReturn(initForm)
-        Mockito.`when`(
+        whenever(service.initForm()).thenReturn(initForm)
+        whenever(
             mockMessageSource.getMessage(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any<Array<Any>>(),
@@ -396,12 +399,14 @@ class BookManageControllerUnitTests {
         assertEquals(message, TEST_MESSAGE)
 
         // メッセージソースの引数を確認する
-        Mockito.verify(mockMessageSource).getMessage(
-            messageCode.capture(),
-            ArgumentMatchers.any<Array<Any>>(),
-            ArgumentMatchers.any()
-        )
-        assertEquals(messageCode.value, "error.booknotfound")
+        argumentCaptor<String> {
+            verify(mockMessageSource).getMessage(
+                capture(),
+                ArgumentMatchers.any<Array<Any>>(),
+                ArgumentMatchers.any()
+            )
+            assertEquals(firstValue, "error.booknotfound")
+        }
     }
 
     @Test
@@ -418,18 +423,18 @@ class BookManageControllerUnitTests {
         initForm.books = listOf(testBook)
 
         // モックを登録
-        Mockito.`when`(
+        whenever(
             service.updateBook(
                 ArgumentMatchers.eq(INVALID_TEST_ID),
-                com.nhaarman.mockitokotlin2.any()
+                any()
             )
         ).thenThrow(
             ObjectOptimisticLockingFailureException(
                 Book::class.java, INVALID_TEST_ID
             )
         )
-        Mockito.`when`(service.initForm()).thenReturn(initForm)
-        Mockito.`when`(
+        whenever(service.initForm()).thenReturn(initForm)
+        whenever(
             mockMessageSource.getMessage(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any<Array<Any>>(),
@@ -463,12 +468,14 @@ class BookManageControllerUnitTests {
         assertEquals(message, TEST_MESSAGE)
 
         // メッセージソースの引数を確認する
-        Mockito.verify(mockMessageSource).getMessage(
-            messageCode.capture(),
-            ArgumentMatchers.any<Array<Any>>(),
-            ArgumentMatchers.any()
-        )
-        assertEquals(messageCode.value, "error.optlockfailure")
+        argumentCaptor<String> {
+            verify(mockMessageSource).getMessage(
+                capture(),
+                ArgumentMatchers.any<Array<Any>>(),
+                ArgumentMatchers.any()
+            )
+            assertEquals(firstValue, "error.optlockfailure")
+        }
     }
 
     @Test
@@ -485,8 +492,8 @@ class BookManageControllerUnitTests {
         initForm.books = listOf(testBook)
 
         // モックを登録
-        Mockito.`when`(service.initForm()).thenReturn(initForm)
-        Mockito.`when`(
+        whenever(service.initForm()).thenReturn(initForm)
+        whenever(
             mockMessageSource.getMessage(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any<Array<Any>>(),
@@ -520,12 +527,14 @@ class BookManageControllerUnitTests {
         assertEquals(message, TEST_MESSAGE)
 
         // メッセージソースの引数を確認する
-        Mockito.verify(mockMessageSource).getMessage(
-            messageCode.capture(),
-            ArgumentMatchers.any<Array<Any>>(),
-            ArgumentMatchers.any()
-        )
-        assertEquals(messageCode.value, "error.validation")
+        argumentCaptor<String> {
+            verify(mockMessageSource).getMessage(
+                capture(),
+                ArgumentMatchers.any<Array<Any>>(),
+                ArgumentMatchers.any()
+            )
+            assertEquals(firstValue, "error.validation")
+        }
 
         // エラーの件数を確認する
         //MEMO bindingResultの詳細な確認は、BookManageFormTestsで行う
@@ -537,7 +546,7 @@ class BookManageControllerUnitTests {
     @Test
     fun `deleteOneBook_正常に削除した場合のステータスとリダイレクトURLの確認`() {
         // モックを登録
-        Mockito.doNothing().`when`(service).deleteBook(TEST_ID)
+        doNothing().whenever(service).deleteBook(TEST_ID)
 
         // deleteリクエストでbooksを指定する
         mockMvc.perform(delete("/books/1"))
@@ -549,13 +558,12 @@ class BookManageControllerUnitTests {
     @Test
     fun `deleteOneBook_指定したIDのデータが存在しない場合のステータスとビューとモデルの確認`() {
         // モックを登録
-        Mockito.doThrow(BookNotFoundException(INVALID_TEST_ID))
-            .`when`(service).deleteBook(INVALID_TEST_ID)
+        doThrow(BookNotFoundException(INVALID_TEST_ID)).whenever(service).deleteBook(INVALID_TEST_ID)
         val initForm = BookManageForm()
         initForm.newBook = true
         initForm.books = listOf(testBook)
-        Mockito.`when`(service.initForm()).thenReturn(initForm)
-        Mockito.`when`(
+        whenever(service.initForm()).thenReturn(initForm)
+        whenever(
             mockMessageSource.getMessage(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any<Array<Any>>(),
@@ -584,12 +592,14 @@ class BookManageControllerUnitTests {
         assertEquals(message, TEST_MESSAGE)
 
         // メッセージソースの引数を確認する
-        Mockito.verify(mockMessageSource).getMessage(
-            messageCode.capture(),
-            ArgumentMatchers.any<Array<Any>>(),
-            ArgumentMatchers.any()
-        )
-        assertEquals(messageCode.value, "error.booknotfound")
+        argumentCaptor<String> {
+            verify(mockMessageSource).getMessage(
+                capture(),
+                ArgumentMatchers.any<Array<Any>>(),
+                ArgumentMatchers.any()
+            )
+            assertEquals(firstValue, "error.booknotfound")
+        }
     }
 
     @Test
@@ -660,13 +670,11 @@ class BookManageControllerUnitTests {
         val initForm = BookManageForm()
         initForm.newBook = true
         initForm.books = listOf(testBook)
-        Mockito.`when`(service.initForm()).thenReturn(initForm)
+        whenever(service.initForm()).thenReturn(initForm)
         // 認証情報のモック
-        val mockPrincipal =
-            Mockito.mock(
-                Authentication::class.java
-            )
-        Mockito.`when`(mockPrincipal.name).thenReturn("user")
+        val mockPrincipal: Authentication = mock {
+            on { name }.thenReturn("user")
+        }
 
         // getリクエストでbooksを指定する
         val result = mockMvc.perform(get("/admin").principal(mockPrincipal))

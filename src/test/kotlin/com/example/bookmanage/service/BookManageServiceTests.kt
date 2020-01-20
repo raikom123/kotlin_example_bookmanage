@@ -5,17 +5,15 @@ import com.example.bookmanage.domain.Book
 import com.example.bookmanage.exception.BookNotFoundException
 import com.example.bookmanage.form.BookManageForm
 import com.example.bookmanage.repository.BookRepository
-import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.whenever
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
-import org.modelmapper.ModelMapper
+import org.mockito.Mockito.*
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.orm.ObjectOptimisticLockingFailureException
 import java.util.*
@@ -55,7 +53,7 @@ internal class BookManageServiceTests {
     @Test
     fun `initForm_戻り値の変数とメソッドの呼び出しの確認`() {
         // モック
-        Mockito.`when`(repository.findAll()).thenReturn(listOf(testBook))
+        whenever(repository.findAll()).thenReturn(listOf(testBook))
 
         // initFormの呼び出し
         val form = service.initForm()
@@ -76,18 +74,14 @@ internal class BookManageServiceTests {
         assertEquals(book.version, TEST_VERSION)
 
         // repositoryのメソッドの呼び出しを確認
-        Mockito.verify(repository, Mockito.times(1)).findAll()
+        verify(repository, times(1)).findAll()
     }
 
     @Test
     fun `readOneBook_戻り値とメソッドの呼び出しの確認`() {
         // モック
-        Mockito.`when`(
-            repository.findById(
-                TEST_ID
-            )
-        ).thenReturn(Optional.of(testBook))
-        Mockito.`when`(repository.findAll()).thenReturn(listOf(testBook))
+        whenever(repository.findById(TEST_ID)).thenReturn(Optional.of(testBook))
+        whenever(repository.findAll()).thenReturn(listOf(testBook))
 
         // readOneBookを呼び出す
         val form = service.readOneBook(TEST_ID)
@@ -101,19 +95,15 @@ internal class BookManageServiceTests {
         assertEquals(form.books!!.size, 1)
 
         // repositoryのメソッドの呼び出しを確認
-        Mockito.verify(repository, Mockito.times(1)).findAll()
-        Mockito.verify(repository, Mockito.times(1)).findById(TEST_ID)
+        verify(repository, times(1)).findAll()
+        verify(repository, times(1)).findById(TEST_ID)
     }
 
     @Test
     fun `readOneBook_指定したIDのデータが取得できない場合_例外が発生することの確認`() {
         // モック
-        Mockito.`when`(
-            repository.findById(
-                TEST_ID
-            )
-        ).thenReturn(Optional.ofNullable(null))
-        Mockito.`when`(repository.findAll()).thenReturn(listOf())
+        whenever(repository.findById(TEST_ID)).thenReturn(Optional.ofNullable(null))
+        whenever(repository.findAll()).thenReturn(listOf())
 
         // readOneBookを呼び出し、Exceptionが発生することを確認する
         assertThrows(BookNotFoundException::class.java) {
@@ -124,12 +114,8 @@ internal class BookManageServiceTests {
     @Test
     fun `updateBook_戻り値と保存処理の呼び出しの確認`() {
         // モック
-        Mockito.`when`(
-            repository.findById(
-                TEST_ID
-            )
-        ).thenReturn(Optional.of(testBook))
-        Mockito.`when`(repository.save(testBook)).thenReturn(testBook)
+        whenever(repository.findById(TEST_ID)).thenReturn(Optional.of(testBook))
+        whenever(repository.save(testBook)).thenReturn(testBook)
 
         // updateBookを呼び出す
         val form = BookManageForm()
@@ -142,17 +128,13 @@ internal class BookManageServiceTests {
         assertThat(book).isEqualTo(testBook)
 
         // saveが呼び出されることを確認
-        Mockito.verify(repository, Mockito.times(1)).save(testBook)
+        verify(repository, times(1)).save(testBook)
     }
 
     @Test
     fun `updateBook_DBのバージョンと異なるバージョンを指定した場合_例外が発生することの確認`() {
         // モック
-        Mockito.`when`(
-            repository.findById(
-                TEST_ID
-            )
-        ).thenReturn(Optional.of(testBook))
+        whenever(repository.findById(TEST_ID)).thenReturn(Optional.of(testBook))
 
         // updateBookを呼び出す
         val form = BookManageForm()
@@ -169,11 +151,7 @@ internal class BookManageServiceTests {
     @Test
     fun `updateBook_指定したIDでデータが取得できない場合_例外が発生することの確認`() {
         // モック
-        Mockito.`when`(
-            repository.findById(
-                TEST_ID
-            )
-        ).thenReturn(Optional.ofNullable(null))
+        whenever(repository.findById(TEST_ID)).thenReturn(Optional.ofNullable(null))
 
         // updateBookを呼び出す
         val form = BookManageForm()
@@ -204,26 +182,25 @@ internal class BookManageServiceTests {
         assertThat(book).isEqualTo(testBook)
 
         // saveが呼び出されることを確認
-        Mockito.verify(repository, Mockito.times(1))
-            .save(ArgumentMatchers.any())
+        verify(repository, times(1)).save(ArgumentMatchers.any())
     }
 
     @Test
     fun `deleteBook_削除処理の呼び出しの確認`() {
         // モック
-        Mockito.`when`(repository.existsById(TEST_ID)).thenReturn(true)
+        whenever(repository.existsById(TEST_ID)).thenReturn(true)
 
         // deleteBookを呼び出す
         service.deleteBook(TEST_ID)
 
         // deleteByIdが呼び出されることを確認
-        Mockito.verify(repository, Mockito.times(1)).deleteById(TEST_ID)
+        verify(repository, times(1)).deleteById(TEST_ID)
     }
 
     @Test
     fun `deleteBook_指定したIDのデータが存在しない場合_例外が発生することの確認`() {
         // モック
-        Mockito.`when`(repository.existsById(TEST_ID)).thenReturn(false)
+        whenever(repository.existsById(TEST_ID)).thenReturn(false)
 
         // deleteBookを呼び出し、例外が発生することを確認する
         assertThrows(BookNotFoundException::class.java) {

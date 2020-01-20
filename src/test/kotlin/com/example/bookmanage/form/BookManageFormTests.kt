@@ -3,6 +3,7 @@ package com.example.bookmanage.form
 import com.example.bookmanage.WebMvcConfig
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.Assertions.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.context.support.ReloadableResourceBundleMessageSource
@@ -13,7 +14,6 @@ import org.springframework.validation.BindException
 import org.springframework.validation.BindingResult
 import org.springframework.validation.Validator
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import java.util.*
 
 /**
  * 書籍管理システムのフォーム情報のテストプログラム
@@ -57,7 +57,7 @@ internal class BookManageFormTests {
     @Test
     fun `入力値が正常な場合＿エラーが発生しないことの確認`() {
         validator.validate(form, result)
-        Assertions.assertNull(result.fieldError)
+        assertNull(result.fieldError)
     }
 
     @Test
@@ -74,8 +74,8 @@ internal class BookManageFormTests {
         validator.validate(form, result)
 
         // エラーが発生したフィールドとメッセージを確認する
-        Assertions.assertEquals(result.fieldError!!.field, "title")
-        Assertions.assertEquals(result.fieldError!!.defaultMessage, actualMessage)
+        assertEquals(result.fieldError!!.field, "title")
+        assertEquals(result.fieldError!!.defaultMessage, actualMessage)
     }
 
     @Test
@@ -92,8 +92,8 @@ internal class BookManageFormTests {
         validator.validate(form, result)
 
         // エラーが発生したフィールドとメッセージを確認する
-        Assertions.assertEquals(result.fieldError!!.field, "title")
-        Assertions.assertEquals(result.fieldError!!.defaultMessage, actualMessage)
+        assertEquals(result.fieldError!!.field, "title")
+        assertEquals(result.fieldError!!.defaultMessage, actualMessage)
     }
 
     @Test
@@ -110,8 +110,8 @@ internal class BookManageFormTests {
         validator.validate(form, result)
 
         // エラーが発生したフィールドとメッセージを確認する
-        Assertions.assertEquals(result.fieldError!!.field, "author")
-        Assertions.assertEquals(result.fieldError!!.defaultMessage, actualMessage)
+        assertEquals(result.fieldError!!.field, "author")
+        assertEquals(result.fieldError!!.defaultMessage, actualMessage)
     }
 
     @Test
@@ -128,8 +128,8 @@ internal class BookManageFormTests {
         validator.validate(form, result)
 
         // エラーが発生したフィールドとメッセージを確認する
-        Assertions.assertEquals(result.fieldError!!.field, "author")
-        Assertions.assertEquals(result.fieldError!!.defaultMessage, actualMessage)
+        assertEquals(result.fieldError!!.field, "author")
+        assertEquals(result.fieldError!!.defaultMessage, actualMessage)
     }
 
     companion object {

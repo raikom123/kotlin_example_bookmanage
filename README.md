@@ -14,6 +14,12 @@ Kotlin + SpringBoot + JPA + Thymeleaf + Security で書籍管理のWebアプリ�
 - データの登録・更新時にタイムスタンプとバージョンとユーザを自動的に更新する
 - ログイン機能を持つ。
 - ユーザ認証と権限によりアクセスを制御する。
+- DBはdockerで起動したpostgreSQLに接続する。
+- 単体テストではH2DBを使用する。
+
+## 注意点
+
+etc/dockerフォルダで"docker-compose up"すると、springが起動しなくなるため、別のフォルダに移動させてから起動する必要がある。
 
 ## 確認方法
 

@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import javax.sql.DataSource
 
 /**
  * 書籍管理システムのsecurityのconfiguration<br></br>
@@ -19,9 +20,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
  */
 @Configuration
 @EnableWebSecurity
-class WebSecurityConfig : WebSecurityConfigurerAdapter() {
-//    @Autowired
-//    private DataSource dataSource;
+class WebSecurityConfig(val dataSource: DataSource) : WebSecurityConfigurerAdapter() {
 
     @Throws(Exception::class)
     override fun configure(web: WebSecurity) {
@@ -58,18 +57,18 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
     @Throws(Exception::class)
     override fun configure(auth: AuthenticationManagerBuilder) {
-        val passwordEncoder = BCryptPasswordEncoder()
-        auth
-            .inMemoryAuthentication()
-            .withUser("user").password(passwordEncoder.encode("user")).authorities("ROLE_USER").and()
-            .withUser("admin").password(passwordEncoder.encode("admin")).authorities("ROLE_ADMIN").and()
-            .passwordEncoder(passwordEncoder)
-        // DBを使う場合
+//        val passwordEncoder = BCryptPasswordEncoder()
 //        auth
-//          .jdbcAuthentication()
-//            .dataSource(dataSource)
-//            .usersByUsernameQuery("SELECT username, password, enabled FROM users WHERE username = ?")
-//            .authoritiesByUsernameQuery("SELECT username, authority FROM users WHERE username = ?")
-//            .passwordEncoder(new BCryptPasswordEncoder());
+//            .inMemoryAuthentication()
+//            .withUser("user").password(passwordEncoder.encode("user")).authorities("ROLE_USER").and()
+//            .withUser("admin").password(passwordEncoder.encode("admin")).authorities("ROLE_ADMIN").and()
+//            .passwordEncoder(passwordEncoder)
+        // DBを使う場合
+        auth
+          .jdbcAuthentication()
+            .dataSource(dataSource)
+            .usersByUsernameQuery("SELECT username, password, enabled FROM users WHERE username = ?")
+            .authoritiesByUsernameQuery("SELECT username, authority FROM users WHERE username = ?")
+            .passwordEncoder(BCryptPasswordEncoder())
     }
 }

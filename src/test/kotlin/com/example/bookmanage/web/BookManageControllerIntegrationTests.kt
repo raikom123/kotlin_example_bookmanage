@@ -42,7 +42,7 @@ internal class BookManageControllerIntegrationTests {
     @Test
     fun `login処理でログインに成功した場合の確認`() {
         // ログイン処理を行う
-        mockMvc.perform(formLogin("/authenticate").user("user").password("user"))
+        mockMvc.perform(formLogin("/authenticate").user("user").password("pass"))
             .andDo(print())
             .andExpect(status().is3xxRedirection) // HTTPステータスが3xxか否か(リダイレクト)
             .andExpect(redirectedUrl("/books")) // /booksにリダイレクトするか否か

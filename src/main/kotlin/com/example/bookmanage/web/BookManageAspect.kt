@@ -29,17 +29,15 @@ class BookManageAspect {
      */
     @Around("execution(* com.example.bookmanage.web.*.*(..))")
     @Throws(Throwable::class)
-    fun inWebLayer(pjp: ProceedingJoinPoint): Any {
+    fun inWebLayer(pjp: ProceedingJoinPoint): Any? {
         val stopWatch = StopWatch()
         stopWatch.start()
-        val result: Any
-        result = try {
-            pjp.proceed()
+        try {
+            return pjp.proceed()
         } finally {
             stopWatch.stop()
             BookManageAspect.log.trace("{} : {} ms", pjp.signature, stopWatch.totalTimeMillis)
         }
-        return result
     }
 
     /**
@@ -51,16 +49,14 @@ class BookManageAspect {
      */
     @Around("execution(* com.example.bookmanage.service.*.*(..))")
     @Throws(Throwable::class)
-    fun inServiceLayer(pjp: ProceedingJoinPoint): Any {
+    fun inServiceLayer(pjp: ProceedingJoinPoint): Any? {
         val stopWatch = StopWatch()
         stopWatch.start()
-        val result: Any
-        result = try {
-            pjp.proceed()
+        try {
+            return pjp.proceed()
         } finally {
             stopWatch.stop()
             BookManageAspect.log.trace("{} : {} ms", pjp.signature, stopWatch.totalTimeMillis)
         }
-        return result
     }
 }

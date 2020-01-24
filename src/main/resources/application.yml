@@ -1,0 +1,32 @@
+spring:
+# jpa(for postgres)
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+# datasource(for postgres)
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/testdb
+    username: test01
+    password: test01test01
+# h2 for debug tool
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+# message
+  messages:
+    basename: messages
+    cache-duration: -1
+    encoding: UTF-8
+# logging
+#logging.level.org.springframework.web=debug
+#logging.level.org.hibernate.SQL=debug
+#logging.level.org.hibernate.type.descriptor.sql=trace
+logging:
+  level:
+    com.example.bookmanage.web: trace
+  file.name: ./logs/application.log

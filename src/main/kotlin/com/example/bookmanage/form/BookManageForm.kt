@@ -21,7 +21,7 @@ class BookManageForm() {
      */
     @NotBlank
     @Size(
-        max = 30,
+        max = 50,
         message = "{validation.max-size}"
     )
     var title: String? = null

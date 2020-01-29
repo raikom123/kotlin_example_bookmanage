@@ -136,11 +136,11 @@ internal class BookManageFormTests {
         /**
          * タイトルの正常なデータ
          */
-        private const val TITLE_SUCCESS = "123456789012345678901234567890"
+        private val TITLE_SUCCESS = "1234567890".repeat(5)
         /**
          * 著者の正常なデータ
          */
-        private const val AUTHOR_SUCCESS = "１２３４５６７８９０１２３４５６７８９０"
+        private val AUTHOR_SUCCESS = "１２３４５６７８９０".repeat(2)
         /**
          * タイトルの空入力エラー用のデータ
          */
@@ -152,11 +152,11 @@ internal class BookManageFormTests {
         /**
          * タイトルの桁の最大値を超えるエラー用のデータ
          */
-        private const val TITLE_ERROR_MAX_SIZE = "1234567890123456789012345678901"
+        private val TITLE_ERROR_MAX_SIZE = TITLE_SUCCESS + "1"
         /**
          * 著者の桁の最大値を超えるエラー用のデータ
          */
-        private const val AUTHOR_ERROR_MAX_SIZE = "１２３４５６７８９０１２３４５６７８９０１"
+        private val AUTHOR_ERROR_MAX_SIZE = AUTHOR_SUCCESS + "１"
 
     }
 }

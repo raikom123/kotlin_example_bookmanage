@@ -48,7 +48,7 @@ dependencies {
 	testImplementation("org.springframework.security:spring-security-test")
 	testImplementation("io.kotlintest:kotlintest-runner-junit5:3.2.1")
 	testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
-
+	testImplementation("org.seleniumhq.selenium:selenium-java:3.141.59")
 }
 
 tasks.withType<Test> {

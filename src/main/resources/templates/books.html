@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width,
-                   initial-scale=1,
-                   shrink-to-fit=no">
-    <meta name="description"
-          content="APP DESCRIPTION">
-    <meta name="author"
-          content="YOUR NAME">
-    <title th:text="#{system.title}">書籍管理システム</title>
-    <link rel="stylesheet"
-          th:href="@{/css/bootstrap-4.4.1.min.css}">
+    <title th:text="#{books.title}">管理画面</title>
 </head>
 <body>
-    <div class="container">
+    <div class="container" layout:fragment="content">
         <div class="header clearfix">
             <div class="row">
                 <div class="col-8">
@@ -47,7 +38,7 @@
             >
                 <div class="form-row">
                     <div class="form-group col-md-8">
-                        <label for="input-text-subject"
+                        <label for="input-text-title"
                                th:text="#{label.title}"
                         >
                         タイトル
@@ -102,7 +93,7 @@
             >
                 <div class="form-row">
                     <div class="form-group col-md-8">
-                        <label for="input-text-subject"
+                        <label for="input-text-title"
                                th:text="#{label.title}"
                         >
                         タイトル
@@ -201,8 +192,5 @@
             </table>
         </div>
     </div>
-    <script th:src="@{/js/vendor/jquery-3.4.1.min.js}"></script>
-    <script th:src="@{/js/vendor/popper-1.16.0.min.js}"></script>
-    <script th:src="@{/js/bootstrap-4.4.1.min.js}"></script>
 </body>
 </html>

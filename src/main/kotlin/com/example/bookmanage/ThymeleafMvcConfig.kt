@@ -1,5 +1,6 @@
 package com.example.bookmanage
 
+import nz.net.ultraq.thymeleaf.LayoutDialect
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.support.ResourceBundleMessageSource
@@ -37,7 +38,7 @@ class ThymeleafMvcConfig {
 
     @Bean
     fun additionalDialects(): Set<IDialect> {
-        return HashSet(listOf(SpringSecurityDialect()))
+        return HashSet(listOf(SpringSecurityDialect(), LayoutDialect()))
     }
 
     @Bean
